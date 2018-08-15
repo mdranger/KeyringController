@@ -6,7 +6,10 @@ const BN = ethUtil.BN
 const mockEncryptor = require('./lib/mock-encryptor')
 const sinon = require('sinon')
 
-describe('KeyringController', () => {
+/*
+ * Used 
+*/
+describe('KeyringController MOAC test', () => {
   let keyringController
   const password = 'password123'
   const seedWords = 'puzzle seed penalty soldier say clay field arctic metal hen cage runway'
@@ -16,13 +19,12 @@ describe('KeyringController', () => {
 
   beforeEach(async () => {
     this.sinon = sinon.sandbox.create()
-    window.localStorage = {} // Hacking localStorage support into JSDom
+    // window.localStorage = {} // Hacking localStorage support into JSDom
 
     keyringController = new KeyringController({
       configManager: configManagerGen(),
       encryptor: mockEncryptor,
     })
-
     const newState = await keyringController.createNewVaultAndKeychain(password)
   })
 
@@ -72,7 +74,7 @@ describe('KeyringController', () => {
   })
 
   describe('#addNewKeyring', () => {
-    it('Simple Key Pair', async () => {
+/*    it('Simple Key Pair', async () => {
       const privateKey = 'c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
       const previousAccounts = await keyringController.getAccounts()
       const keyring = await keyringController.addNewKeyring('Simple Key Pair', [ privateKey ])
@@ -83,6 +85,20 @@ describe('KeyringController', () => {
       const expectedAllAccounts = previousAccounts.concat(expectedKeyringAccounts)
       assert.deepEqual(allAccounts, expectedAllAccounts, 'allAccounts match expectation')
     })
+    */
+
+    it('MOAC Key Pair', async () => {
+      const privateKey = 'c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
+      const previousAccounts = await keyringController.getAccounts()
+      const keyring = await keyringController.addNewKeyring('MOAC Key Pair', [ privateKey ])
+      const keyringAccounts = await keyring.getAccounts()
+      const expectedKeyringAccounts = ['0x627306090abab3a6e1400e9345bc60c78a8bef57']
+      assert.deepEqual(keyringAccounts, expectedKeyringAccounts, 'keyringAccounts match expectation')
+      const allAccounts = await keyringController.getAccounts()
+      const expectedAllAccounts = previousAccounts.concat(expectedKeyringAccounts)
+      assert.deepEqual(allAccounts, expectedAllAccounts, 'allAccounts match expectation')
+    })
+    
   })
 
   describe('#restoreKeyring', () => {

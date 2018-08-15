@@ -9,11 +9,15 @@ const encryptor = require('browser-passworder')
 const sigUtil = require('eth-sig-util')
 const normalizeAddress = sigUtil.normalize
 // Keyrings:
-const SimpleKeyring = require('eth-simple-keyring')
-const HdKeyring = require('eth-hd-keyring')
+// const SimpleKeyring = require('eth-simple-keyring')
+const HdKeyring = require('eth-hd-keyring')//This need to be enabled to init the KeyringController
+const MOACKeyring = require('moac-keyring')
+// const SimpleKeyring = require('moac-keyring')
+// const MOACKeyring = require('../moac-keyring/index.js')//Use for debugging only
 const keyringTypes = [
-  SimpleKeyring,
+  // SimpleKeyring,
   HdKeyring,
+  MOACKeyring,
 ]
 
 class KeyringController extends EventEmitter {
@@ -157,7 +161,10 @@ class KeyringController extends EventEmitter {
   // and this is used to retrieve them from the keyringTypes array.
   addNewKeyring (type, opts) {
     const Keyring = this.getKeyringClassForType(type)
+    // console.log("Create keyring with ", opts);
+
     const keyring = new Keyring(opts)
+
     return keyring.getAccounts()
     .then((accounts) => {
       return this.checkForDuplicate(type, accounts)
@@ -176,12 +183,16 @@ class KeyringController extends EventEmitter {
   // For now just checks for simple key pairs
   // but in the future
   // should possibly add HD and other types
-  //
+  // It seems don't need to add the MOAC but combine both
+  // 
   checkForDuplicate (type, newAccount) {
     return this.getAccounts()
     .then((accounts) => {
       switch (type) {
-        case 'Simple Key Pair':
+        // case 'Simple Key Pair':
+        //   const isNotIncluded = !accounts.find((key) => key === newAccount[0] || key === ethUtil.stripHexPrefix(newAccount[0]))
+        //   return (isNotIncluded) ? Promise.resolve(newAccount) : Promise.reject(new Error('The account you\'re are trying to import is a duplicate'))
+        case 'MOAC Key Pair':
           const isNotIncluded = !accounts.find((key) => key === newAccount[0] || key === ethUtil.stripHexPrefix(newAccount[0]))
           return (isNotIncluded) ? Promise.resolve(newAccount) : Promise.reject(new Error('The account you\'re are trying to import is a duplicate'))
         default:
@@ -199,6 +210,7 @@ class KeyringController extends EventEmitter {
   // Calls the `addAccounts` method on the Keyring
   // in the kryings array at index `keyringNum`,
   // and then saves those changes.
+
   addNewAccount (selectedKeyring) {
     return selectedKeyring.addAccounts(1)
     .then((accounts) => {
@@ -236,12 +248,14 @@ class KeyringController extends EventEmitter {
   //
   // This method signs tx and returns a promise for
   // TX Manager to update the state after signing
+  // moacTx may have additional fields for MOAC blockchain
+  // 
 
-  signTransaction (ethTx, _fromAddress) {
+  signTransaction (moacTx, _fromAddress) {
     const fromAddress = normalizeAddress(_fromAddress)
     return this.getKeyringForAccount(fromAddress)
     .then((keyring) => {
-      return keyring.signTransaction(fromAddress, ethTx)
+      return keyring.signTransaction(fromAddress, moacTx)
     })
   }
 
@@ -404,6 +418,8 @@ class KeyringController extends EventEmitter {
   // for a Keyring class whose unique `type` property
   // matches the provided `type`,
   // returning it if it exists.
+  // Add moac-keyring as a type
+  //
   getKeyringClassForType (type) {
     return this.keyringTypes.find(kr => kr.type === type)
   }

@@ -7,6 +7,8 @@ const MAINNET_RPC = MetamaskConfig.network.mainnet
 const ROPSTEN_RPC = MetamaskConfig.network.ropsten
 const KOVAN_RPC = MetamaskConfig.network.kovan
 const RINKEBY_RPC = MetamaskConfig.network.rinkeby
+const MOACMAIN_RPC = MetamaskConfig.network.MOACmain
+const MOACTEST_RPC = MetamaskConfig.network.MOACtest
 
 /* The config-manager is a convenience object
  * wrapping a pojo-migrator.
@@ -154,6 +156,12 @@ ConfigManager.prototype.getCurrentRpcAddress = function () {
     case 'rinkeby':
       return RINKEBY_RPC
 
+    case 'MOACmain':
+      return MOACMAIN_RPC
+    
+    case 'MOACtest':
+      return MOACTEST_RPC  
+    
     default:
       return provider && provider.rpcTarget ? provider.rpcTarget : RINKEBY_RPC
   }

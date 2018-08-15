@@ -9,6 +9,8 @@ The KeyringController has three main responsibilities:
 - Keeping track of local nicknames for those individual accounts.
 - Providing password-encryption persisting & restoring of secret information.
 
+MOAC version
+
 ## Installation
 
 `npm install eth-keyring-controller --save`
